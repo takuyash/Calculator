@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comic 漫画風 電卓</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
+  body {
+    background: #fff7e6;
+    font-family: 'Permanent Marker', cursive, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .calculator {
+    background: #fffae6;
+    border: 4px solid #ff6347;
+    border-radius: 30px;
+    box-shadow:
+      6px 6px 0 #ff6347,
+      inset 0 0 15px #fff3e0;
+    width: 320px;
+    padding: 20px 30px;
+  }
+
+  .display {
+    background: white;
+    border: 3px solid #ff6347;
+    border-radius: 20px;
+    padding: 20px;
+    font-size: 2.2rem;
+    text-align: right;
+    color: #ff6347;
+    box-shadow: inset 0 0 10px #ffb3a7;
+    user-select: none;
+    min-height: 60px;
+  }
+
+  .buttons {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  button {
+    background: #fff3e0;
+    border: 3px solid #ff6347;
+    border-radius: 25px;
+    box-shadow:
+      3px 3px 0 #ff6347;
+    font-family: 'Permanent Marker', cursive, sans-serif;
+    font-size: 1.5rem;
+    color: #ff6347;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s ease;
+    padding: 15px 0;
+    position: relative;
+  }
+
+  button:active {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+  }
+
+  button.operator {
+    background: #ff6347;
+    color: white;
+    box-shadow: 3px 3px 0 #cc4c39;
+  }
+
+  button.operator:active {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+  }
+
+  /* 漫画っぽいポンッアニメーション */
+  button:focus {
+    animation: pop 0.15s ease forwards;
+  }
+
+  @keyframes pop {
+    0% {
+      transform: scale(1);
+      box-shadow: 3px 3px 0 #ff6347;
+    }
+    50% {
+      transform: scale(1.1);
+      box-shadow: 6px 6px 0 #ff6347;
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 3px 3px 0 #ff6347;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="calculator" role="application" aria-label="漫画風電卓">
+    <div class="display" id="display" aria-live="polite" aria-atomic="true">0</div>
+    <div class="buttons">
+      <button type="button" data-action="clear">C</button>
+      <button type="button" data-action="backspace">←</button>
+      <button type="button" data-action="divide" class="operator">÷</button>
+      <button type="button" data-action="multiply" class="operator">×</button>
+
+      <button type="button" data-number="7">7</button>
+      <button type="button" data-number="8">8</button>
+      <button type="button" data-number="9">9</button>
+      <button type="button" data-action="subtract" class="operator">−</button>
+
+      <button type="button" data-number="4">4</button>
+      <button type="button" data-number="5">5</button>
+      <button type="button" data-number="6">6</button>
+      <button type="button" data-action="add" class="operator">＋</button>
+
+      <button type="button" data-number="1">1</button>
+      <button type="button" data-number="2">2</button>
+      <button type="button" data-number="3">3</button>
+      <button type="button" data-action="equals" class="operator">＝</button>
+
+      <button type="button" data-number="0" style="grid-column: span 2;">0</button>
+      <button type="button" data-number=".">.</button>
+      <button type="button" data-action="equals" class="operator" style="visibility:hidden;">＝</button>
+    </div>
+  </div>
+
+<script>
+  const display = document.getElementById('display');
+  let currentInput = '';
+  let lastResult = null;
+
+  function updateDisplay() {
+    display.textContent = currentInput || '0';
+  }
+
+  function appendNumber(num) {
+    if (num === '.' && currentInput.includes('.')) return;
+    currentInput += num;
+    updateDisplay();
+  }
+
+  function clearInput() {
+    currentInput = '';
+    lastResult = null;
+    updateDisplay();
+  }
+
+  function backspace() {
+    currentInput = currentInput.slice(0, -1);
+    updateDisplay();
+  }
+
+  function calculate(expr) {
+    try {
+      // 演算子をJS計算式に置換
+      expr = expr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-').replace(/＋/g, '+');
+      // 連続演算子や文法エラーは例外になる
+      let result = Function('"use strict";return (' + expr + ')')();
+      if (result === undefined) return '';
+      if (Number.isFinite(result)) {
+        // 小数点以下を適切に丸める
+        result = Math.round(result * 100000000) / 100000000;
+        return result.toString();
+      } else {
+        return 'エラー';
+      }
+    } catch {
+      return 'エラー';
+    }
+  }
+
+  document.querySelector('.buttons').addEventListener('click', e => {
+    const btn = e.target;
+    if (!btn.matches('button')) return;
+
+    if (btn.hasAttribute('data-number')) {
+      appendNumber(btn.getAttribute('data-number'));
+      return;
+    }
+
+    switch (btn.getAttribute('data-action')) {
+      case 'clear':
+        clearInput();
+        break;
+      case 'backspace':
+        backspace();
+        break;
+      case 'add':
+        currentInput += '＋';
+        updateDisplay();
+        break;
+      case 'subtract':
+        currentInput += '−';
+        updateDisplay();
+        break;
+      case 'multiply':
+        currentInput += '×';
+        updateDisplay();
+        break;
+      case 'divide':
+        currentInput += '÷';
+        updateDisplay();
+        break;
+      case 'equals':
+        if (currentInput.length === 0) return;
+        const result = calculate(currentInput);
+        currentInput = result === 'エラー' ? '' : result;
+        updateDisplay();
+        break;
+    }
+  });
+</script>
+</body>
+</html>

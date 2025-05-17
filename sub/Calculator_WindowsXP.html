@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Windows XP風電卓</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://jdan.github.io/xp.css/xp.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0; padding: 1rem;
+      background: #c0d0f0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: black;
+      display: flex;
+      justify-content: center;
+    }
+    .calculator {
+      width: 320px;
+      background: white;
+      border: 2px solid #004080;
+      box-shadow: 3px 3px 0 #9c9c9c;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+    .display {
+      width: 100%;
+      height: 40px;
+      font-size: 20px;
+      text-align: right;
+      padding: 5px;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      border: 2px inset #a0a0a0;
+      background: #e0e0e0;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px;
+      cursor: pointer;
+      border: 2px outset #d0d0d0;
+      background: #f0f0f0;
+      border-radius: 4px;
+      user-select: none;
+      box-shadow: inset 1px 1px 0 white;
+    }
+    button:active {
+      border-style: inset;
+      box-shadow: none;
+      background: #d0d0d0;
+    }
+    .clear {
+      grid-column: span 4;
+      background: #ff6c6c;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <input class="display" id="display" value="0" readonly />
+    <div class="buttons">
+      <button onclick="inputChar('7')">7</button>
+      <button onclick="inputChar('8')">8</button>
+      <button onclick="inputChar('9')">9</button>
+      <button onclick="inputChar('/')">÷</button>
+
+      <button onclick="inputChar('4')">4</button>
+      <button onclick="inputChar('5')">5</button>
+      <button onclick="inputChar('6')">6</button>
+      <button onclick="inputChar('*')">×</button>
+
+      <button onclick="inputChar('1')">1</button>
+      <button onclick="inputChar('2')">2</button>
+      <button onclick="inputChar('3')">3</button>
+      <button onclick="inputChar('-')">−</button>
+
+      <button onclick="inputChar('0')">0</button>
+      <button onclick="inputChar('.')">.</button>
+      <button onclick="calculate()">=</button>
+      <button onclick="inputChar('+')">＋</button>
+
+      <button class="clear" onclick="clearDisplay()">C</button>
+    </div>
+  </div>
+
+  <script>
+    let expression = '';
+
+    function inputChar(char) {
+      expression += char;
+      updateDisplay(expression);
+    }
+
+    function calculate() {
+      try {
+        const result = eval(expression);
+        expression = String(result);
+        updateDisplay(expression);
+      } catch {
+        expression = '';
+        updateDisplay('ERROR');
+      }
+    }
+
+    function clearDisplay() {
+      expression = '';
+      updateDisplay('0');
+    }
+
+    function updateDisplay(val) {
+      document.getElementById('display').value = val;
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOS風ターミナル電卓</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: 'Lucida Console', Monaco, monospace;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      user-select: none;
+    }
+    #terminal {
+      flex: 1;
+      background: black;
+      border: 2px solid white;
+      padding: 10px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 16px;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      box-shadow: inset 0 0 10px #555;
+    }
+    #input-line {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    #prompt {
+      flex-shrink: 0;
+      margin-right: 8px;
+    }
+    #command-input {
+      background: black;
+      border: none;
+      color: white;
+      outline: none;
+      font-family: 'Lucida Console', Monaco, monospace;
+      font-size: 16px;
+      flex-grow: 1;
+    }
+    /* 点滅カーソル */
+    #command-input {
+      caret-color: white;
+    }
+    /* 選択時 */
+    ::selection {
+      background: white;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="terminal" aria-live="polite" aria-atomic="false"></div>
+
+  <div id="input-line">
+    <div id="prompt">C:\&gt;</div>
+    <input type="text" id="command-input" aria-label="コマンド入力" autocomplete="off" autofocus />
+  </div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('command-input');
+
+    function appendLine(text, isError = false) {
+      const line = document.createElement('div');
+      line.textContent = text;
+      if (isError) {
+        line.style.color = '#f44';
+      }
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function calculate(expr) {
+      try {
+        if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+          return '無効な式です';
+        }
+        const result = eval(expr);
+        if (result === undefined) return '';
+        return result;
+      } catch {
+        return '計算エラー';
+      }
+    }
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const command = input.value.trim();
+        if (command.length === 0) return;
+
+        appendLine(`C:\\> ${command}`);
+
+        if (command.toLowerCase() === 'cls') {
+          terminal.textContent = '';
+          input.value = '';
+          return;
+        }
+
+        const result = calculate(command);
+        appendLine(result.toString(), result === '無効な式です' || result === '計算エラー');
+
+        input.value = '';
+      }
+    });
+  </script>
+
+</body>
+</html>

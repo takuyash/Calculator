@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>DoodleCSS 電卓</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- DoodleCSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/chr15m/DoodleCSS@latest/doodle.min.css" />
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Short+Stack&display=swap');
+body {
+  font-family: 'Short Stack', cursive;
+}
+    body {
+      font-family: 'Patrick Hand', cursive, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .calculator {
+      width: 320px;
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      position: relative;
+      /* Doodle風 */
+      --doodle-stroke-color: #444;
+      --doodle-stroke-width: 2px;
+      --doodle-wobble: 0.02;
+    }
+
+    .calculator[doodle] {
+      /* DoodleCSS用 */
+      --doodle-stroke-opacity: 0.7;
+    }
+
+    input.display {
+      width: 100%;
+      font-size: 2rem;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 8px;
+      text-align: right;
+      box-sizing: border-box;
+      font-family: 'Patrick Hand', cursive, sans-serif;
+      /* Doodle風 */
+      border: 2px solid #444;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      font-size: 1.5rem;
+      padding: 15px 0;
+      border-radius: 10px;
+      border: 2px solid #444;
+      background: white;
+      cursor: pointer;
+      font-family: 'Patrick Hand', cursive, sans-serif;
+      /* Doodle風 */
+      --doodle-stroke-color: #444;
+      --doodle-stroke-width: 2px;
+      --doodle-wobble: 0.04;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #f0f0f0;
+    }
+
+    button:active {
+      background-color: #ddd;
+    }
+
+    button.operator {
+      color: #d64545;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator" doodle>
+    <input type="text" class="display" id="display" readonly value="0" />
+    <div class="buttons">
+      <button class="operator" data-value="C">C</button>
+      <button class="operator" data-value="±">±</button>
+      <button class="operator" data-value="%">%</button>
+      <button class="operator" data-value="/">÷</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="operator" data-value="*">×</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="operator" data-value="-">−</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="operator" data-value="+">＋</button>
+
+      <button data-value="0" style="grid-column: span 2;">0</button>
+      <button data-value=".">.</button>
+      <button class="operator" data-value="=">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    let current = '0';
+    let operator = null;
+    let operand = null;
+    let resetNext = false;
+
+    function calculate(op, a, b) {
+      a = parseFloat(a);
+      b = parseFloat(b);
+      if (op === '+') return a + b;
+      if (op === '-') return a - b;
+      if (op === '*') return a * b;
+      if (op === '/') return b === 0 ? 'Error' : a / b;
+      if (op === '%') return a % b;
+      return b;
+    }
+
+    function updateDisplay() {
+      display.value = current;
+    }
+
+    function inputDigit(d) {
+      if (resetNext) {
+        current = d === '.' ? '0.' : d;
+        resetNext = false;
+      } else {
+        if (d === '.' && current.includes('.')) return;
+        current = current === '0' && d !== '.' ? d : current + d;
+      }
+    }
+
+    function inputOperator(op) {
+      if (op === 'C') {
+        current = '0';
+        operator = null;
+        operand = null;
+        resetNext = false;
+        return;
+      }
+      if (op === '±') {
+        if (current !== '0') {
+          current = current.startsWith('-') ? current.slice(1) : '-' + current;
+        }
+        return;
+      }
+      if (op === '%') {
+        current = (parseFloat(current) / 100).toString();
+        return;
+      }
+      if (op === '=') {
+        if (operator && operand !== null) {
+          const result = calculate(operator, operand, current);
+          current = String(result);
+          operator = null;
+          operand = null;
+          resetNext = true;
+        }
+        return;
+      }
+      // +, -, *, /
+      if (operator && operand !== null && !resetNext) {
+        const result = calculate(operator, operand, current);
+        current = String(result);
+        operand = current;
+      } else {
+        operand = current;
+      }
+      operator = op;
+      resetNext = true;
+    }
+
+    document.querySelectorAll('.buttons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-value');
+        if ('0123456789.'.includes(val)) {
+          inputDigit(val);
+        } else {
+          inputOperator(val);
+        }
+        updateDisplay();
+      });
+    });
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>

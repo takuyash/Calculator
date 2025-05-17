@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Windows 95風電卓</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/win95.css@0.9.1/dist/css/win95.min.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0; padding: 1rem;
+      background: #008080;
+      font-family: "MS Sans Serif", Geneva, sans-serif;
+      color: black;
+      display: flex;
+      justify-content: center;
+    }
+    .window {
+      width: 320px;
+      padding: 1rem;
+      border: 2px solid #000;
+      background: #c0c0c0;
+      box-shadow: 2px 2px 0 #fff inset, 4px 4px 0 #000;
+    }
+    .display {
+      width: 100%;
+      height: 40px;
+      font-size: 20px;
+      text-align: right;
+      padding: 4px;
+      margin-bottom: 10px;
+      border: 2px inset #fff;
+      background: #fff;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    button {
+      font-size: 16px;
+      padding: 8px;
+      cursor: pointer;
+      user-select: none;
+      border: 2px outset #fff;
+      background: #c0c0c0;
+      box-shadow: inset 1px 1px 0 #fff;
+    }
+    button:active {
+      border-style: inset;
+      box-shadow: none;
+      background: #e0e0e0;
+    }
+    .clear {
+      grid-column: span 4;
+      background: #d60000;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="window">
+    <input class="display" id="display" value="0" readonly />
+    <div class="buttons">
+      <button onclick="inputChar('7')">7</button>
+      <button onclick="inputChar('8')">8</button>
+      <button onclick="inputChar('9')">9</button>
+      <button onclick="inputChar('/')">÷</button>
+
+      <button onclick="inputChar('4')">4</button>
+      <button onclick="inputChar('5')">5</button>
+      <button onclick="inputChar('6')">6</button>
+      <button onclick="inputChar('*')">×</button>
+
+      <button onclick="inputChar('1')">1</button>
+      <button onclick="inputChar('2')">2</button>
+      <button onclick="inputChar('3')">3</button>
+      <button onclick="inputChar('-')">−</button>
+
+      <button onclick="inputChar('0')">0</button>
+      <button onclick="inputChar('.')">.</button>
+      <button onclick="calculate()">=</button>
+      <button onclick="inputChar('+')">＋</button>
+
+      <button class="clear" onclick="clearDisplay()">C</button>
+    </div>
+  </div>
+
+  <script>
+    let expression = '';
+
+    function inputChar(char) {
+      expression += char;
+      updateDisplay(expression);
+    }
+
+    function calculate() {
+      try {
+        const result = eval(expression);
+        expression = String(result);
+        updateDisplay(expression);
+      } catch {
+        expression = '';
+        updateDisplay('ERROR');
+      }
+    }
+
+    function clearDisplay() {
+      expression = '';
+      updateDisplay('0');
+    }
+
+    function updateDisplay(val) {
+      document.getElementById('display').value = val;
+    }
+  </script>
+
+</body>
+</html>

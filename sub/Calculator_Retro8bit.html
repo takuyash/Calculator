@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retro 8bit風電卓</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Press Start 2P', cursive;
+      color: #0f0;
+      user-select: none;
+    }
+    .calculator {
+      background: #111;
+      border: 4px solid #0f0;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow:
+        inset 0 0 10px #0f0,
+        0 0 20px #0f0;
+      width: 320px;
+    }
+    .display {
+      background: #000;
+      color: #0f0;
+      font-size: 1.4rem;
+      padding: 12px;
+      border: 4px solid #0f0;
+      border-radius: 4px;
+      text-align: right;
+      margin-bottom: 20px;
+      height: 40px;
+      overflow-x: auto;
+      white-space: nowrap;
+      box-shadow: inset 0 0 8px #0f0;
+      user-select: text;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    button {
+      background: #111;
+      border: 3px solid #0f0;
+      border-radius: 0;
+      color: #0f0;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.75rem;
+      padding: 16px 0;
+      cursor: pointer;
+      box-shadow:
+        inset 0 0 8px #0a0,
+        0 0 4px #0f0;
+      transition: background 0.2s, color 0.2s;
+      user-select: none;
+    }
+    button:hover {
+      background: #0f0;
+      color: #111;
+    }
+    button:active {
+      box-shadow:
+        inset 0 0 12px #0f0,
+        0 0 6px #0f0;
+    }
+    .span-two {
+      grid-column: span 2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator" role="region" aria-label="Retro 8bit style calculator">
+  <div class="display" id="display" aria-live="polite" aria-atomic="true">0</div>
+  <div class="buttons">
+    <button type="button" data-value="7">7</button>
+    <button type="button" data-value="8">8</button>
+    <button type="button" data-value="9">9</button>
+    <button type="button" data-value="/">÷</button>
+
+    <button type="button" data-value="4">4</button>
+    <button type="button" data-value="5">5</button>
+    <button type="button" data-value="6">6</button>
+    <button type="button" data-value="*">×</button>
+
+    <button type="button" data-value="1">1</button>
+    <button type="button" data-value="2">2</button>
+    <button type="button" data-value="3">3</button>
+    <button type="button" data-value="-">−</button>
+
+    <button type="button" data-value="0" class="span-two">0</button>
+    <button type="button" data-value=".">.</button>
+    <button type="button" data-value="+">＋</button>
+
+    <button type="button" data-value="C">C</button>
+    <button type="button" data-value="=">=</button>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('.buttons button');
+    let currentInput = '';
+    let resetNext = false;
+
+    function calculate(expression) {
+      try {
+        // eslint-disable-next-line no-eval
+        const result = eval(expression.replace(/÷/g, '/').replace(/×/g, '*'));
+        return result === undefined ? '' : result;
+      } catch {
+        return 'Error';
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const val = button.getAttribute('data-value');
+        if (val === 'C') {
+          currentInput = '';
+          display.textContent = '0';
+          return;
+        }
+        if (val === '=') {
+          if (!currentInput) return;
+          const res = calculate(currentInput);
+          display.textContent = res;
+          currentInput = res.toString();
+          resetNext = true;
+          return;
+        }
+
+        if (resetNext) {
+          currentInput = '';
+          resetNext = false;
+        }
+
+        // 入力制限
+        if (!val.match(/[0-9+\-*/.]/)) return;
+
+        currentInput += val;
+        display.textContent = currentInput;
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

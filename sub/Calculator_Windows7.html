@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>電卓アプリ - Windows 7風</title>
+  <link rel="stylesheet" href="https://khang-nd.github.io/7.css/7.css">
+  <style>
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+    .calc-grid button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    .display {
+      font-family: monospace;
+      font-size: 24px;
+      text-align: right;
+      padding: 5px;
+      border: inset 2px;
+      background-color: white;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="window-bg">
+  <div class="window" style="width: 400px; margin: 80px auto;">
+    <div class="title-bar">
+      <div class="title-bar-text">電卓</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="display" id="display">0</div>
+      <div class="calc-grid">
+        <button onclick="input('7')">7</button>
+        <button onclick="input('8')">8</button>
+        <button onclick="input('9')">9</button>
+        <button onclick="input('/')">÷</button>
+
+        <button onclick="input('4')">4</button>
+        <button onclick="input('5')">5</button>
+        <button onclick="input('6')">6</button>
+        <button onclick="input('*')">×</button>
+
+        <button onclick="input('1')">1</button>
+        <button onclick="input('2')">2</button>
+        <button onclick="input('3')">3</button>
+        <button onclick="input('-')">−</button>
+
+        <button onclick="input('0')">0</button>
+        <button onclick="input('.')">.</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="input('+')">＋</button>
+
+        <button onclick="clearDisplay()" style="grid-column: span 4;">C</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let expression = "";
+
+    function input(char) {
+      expression += char;
+      updateDisplay(expression);
+    }
+
+    function calculate() {
+      try {
+        const result = eval(expression);
+        updateDisplay(result);
+        expression = result.toString();
+      } catch {
+        updateDisplay("エラー");
+        expression = "";
+      }
+    }
+
+    function clearDisplay() {
+      expression = "";
+      updateDisplay("0");
+    }
+
+    function updateDisplay(value) {
+      document.getElementById("display").textContent = value;
+    }
+  </script>
+</body>
+</html>
